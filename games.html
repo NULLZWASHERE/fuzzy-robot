@@ -231,7 +231,7 @@ let gamesData = [];
 
 async function fetchGames(){
     try{
-        const res = await fetch("https://redwingapi.infodmca.org/api/games");
+        const res = await fetch(window.location.origin + "/api/games")
         const data = await res.json();
         gamesData = data.games || [];
         renderGames();
