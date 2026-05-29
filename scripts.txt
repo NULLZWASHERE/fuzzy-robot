@@ -1,0 +1,455 @@
+{
+    "success": true,
+    "scripts": [
+        {
+            "id": 191,
+            "name": "MUI Goku",
+            "description": "Become MUI Goku with dodging capabilties!",
+            "content": "require(120303926769303).goku(owner.Name) -- MUI Goku",
+            "category": "visual",
+            "created_at": "2026-05-09T23:09:06.615Z",
+            "author": null
+        },
+        {
+            "id": 190,
+            "name": "Arcane Powers",
+            "description": "Access to spells which are customizable!",
+            "content": "require(84605848706931):Menu(owner.Name) -- Arcane Powers",
+            "category": "visual",
+            "created_at": "2026-05-08T11:28:41.013Z",
+            "author": null
+        },
+        {
+            "id": 189,
+            "name": "Dex V3",
+            "description": "Internal Explorer",
+            "content": "require(8935183891).Dex(owner.Name) -- Dex V3",
+            "category": "admin",
+            "created_at": "2026-05-08T11:26:54.241Z",
+            "author": null
+        },
+        {
+            "id": 188,
+            "name": "Kuno's Ported IY",
+            "description": "High quality IY with some custom commands.",
+            "content": "require(110290995552446):LoadInfiniteYieldSafe(owner.Name)",
+            "category": "admin",
+            "created_at": "2026-04-21T23:04:13.280Z",
+            "author": null
+        },
+        {
+            "id": 187,
+            "name": "Metal Bat",
+            "description": "Awaken to use the powerful metal bat!",
+            "content": "require(108997579821711).metalbat(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:30:20.210Z",
+            "author": null
+        },
+        {
+            "id": 186,
+            "name": "Bomb Vest",
+            "description": "Bomb vest which only kills players, does not destroy the map.",
+            "content": "require(113973948567644).load(owner.Name)\n",
+            "category": "combat",
+            "created_at": "2026-04-21T22:21:47.122Z",
+            "author": null
+        },
+        {
+            "id": 185,
+            "name": "Ash Emperor",
+            "description": "Laggy but very well made script.",
+            "content": "require(16158182531).load(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:20:50.654Z",
+            "author": null
+        },
+        {
+            "id": 184,
+            "name": "Magic Unknown",
+            "description": "Purple energy powers.",
+            "content": "require(4721880357):Fire(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:20:11.026Z",
+            "author": null
+        },
+        {
+            "id": 183,
+            "name": "Outcast",
+            "description": "A script with so many abilities.",
+            "content": "require(11548351868).outc(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:19:38.722Z",
+            "author": null
+        },
+        {
+            "id": 182,
+            "name": "Syntha",
+            "description": "Demonic powers.",
+            "content": "require(16261411602).load(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:19:00.097Z",
+            "author": null
+        },
+        {
+            "id": 181,
+            "name": "Undyne",
+            "description": "Get a spear and look cool!",
+            "content": "require(17759209334).load(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:18:21.883Z",
+            "author": null
+        },
+        {
+            "id": 180,
+            "name": "Hemispheric",
+            "description": "Well made glitcher with lots of cool modes.",
+            "content": "require(132256965890928)(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:17:45.380Z",
+            "author": null
+        },
+        {
+            "id": 179,
+            "name": "Metal Gear Rising Tools",
+            "description": "Cool ass tool pack.",
+            "content": "require(11920979682)(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:16:54.027Z",
+            "author": null
+        },
+        {
+            "id": 178,
+            "name": "Server Admin",
+            "description": "Classic Server Admin Script",
+            "content": "require(3032640233):Start(owner.Name,\"AAA\")\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:16:07.829Z",
+            "author": null
+        },
+        {
+            "id": 177,
+            "name": "Omin Man",
+            "description": "Omni Man abilities.",
+            "content": "require(101583807278186).OmniMan(owner.Name)\n",
+            "category": "combat",
+            "created_at": "2026-04-21T22:15:15.325Z",
+            "author": null
+        },
+        {
+            "id": 176,
+            "name": "Gohan",
+            "description": "Gohan's abilities.",
+            "content": "require(96058497917088).Gohan(owner.Name)\n",
+            "category": "combat",
+            "created_at": "2026-04-21T22:14:42.453Z",
+            "author": null
+        },
+        {
+            "id": 175,
+            "name": "Demogorgon V3",
+            "description": "Newest and highest quality Demogorgon version.",
+            "content": "require(80788405916817).load(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:13:56.351Z",
+            "author": null
+        },
+        {
+            "id": 174,
+            "name": "Doors Figure",
+            "description": "Become the famous character from Doors.",
+            "content": "require(131754452391715).Figure(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:13:00.665Z",
+            "author": null
+        },
+        {
+            "id": 173,
+            "name": "Elemental Battlegrounds Spells",
+            "description": "5 different spells using number keys 1-5.",
+            "content": "require(135902425535655)(owner.Name)\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:12:03.973Z",
+            "author": null
+        },
+        {
+            "id": 172,
+            "name": "King Shark",
+            "description": "Rip and chew players.",
+            "content": "require(81885009203008):Init(owmer.Name)\n",
+            "category": "combat",
+            "created_at": "2026-04-21T22:09:59.938Z",
+            "author": null
+        },
+        {
+            "id": 171,
+            "name": "Clash Royale Wizard",
+            "description": "Showtime!",
+            "content": "equire(91316798180463)(owner.Name, \"Wizard\")\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:09:26.551Z",
+            "author": null
+        },
+        {
+            "id": 170,
+            "name": "Clash Royale P.E.K.K.A",
+            "description": "Butterfly!",
+            "content": "require(91316798180463)(owner.Name, \"P.E.K.K.A\")\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:08:48.467Z",
+            "author": null
+        },
+        {
+            "id": 169,
+            "name": "Clash Royale Monk",
+            "description": "This guy has no voiceline...",
+            "content": "require(91316798180463)(owner.Name, \"Monk\")\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:08:03.959Z",
+            "author": null
+        },
+        {
+            "id": 168,
+            "name": "Clash Royale Mega Knight",
+            "description": "Mega Knight!",
+            "content": "require(91316798180463)(owner.Name, \"Mega Knight\")\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:07:14.913Z",
+            "author": null
+        },
+        {
+            "id": 167,
+            "name": "Clash Royale Knight",
+            "description": "Charge!",
+            "content": "require(91316798180463)(owner.Name, \"Knight\")\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:06:31.936Z",
+            "author": null
+        },
+        {
+            "id": 166,
+            "name": "Clash Royale Guardienne",
+            "description": "For the throne!",
+            "content": "require(91316798180463)(owner.Name, \"Guardienne\")\n",
+            "category": "visual",
+            "created_at": "2026-04-21T22:05:53.446Z",
+            "author": null
+        },
+        {
+            "id": 165,
+            "name": "Clash Royale Bowler",
+            "description": "Bowling!",
+            "content": "require(91316798180463)(owner.Name, \"Bowler\")",
+            "category": "visual",
+            "created_at": "2026-04-21T22:05:05.621Z",
+            "author": null
+        },
+        {
+            "id": 164,
+            "name": "Clash Royale Barbarian",
+            "description": "Rahhhhh!",
+            "content": "require(91316798180463)(owner.Name, \"Barbarian\")",
+            "category": "visual",
+            "created_at": "2026-04-21T22:04:16.126Z",
+            "author": null
+        },
+        {
+            "id": 163,
+            "name": "AUT Minos Prime",
+            "description": "Become Minos Prime from AUT.",
+            "content": "require(78654530634418)(owner.Name)",
+            "category": "combat",
+            "created_at": "2026-04-21T22:00:43.344Z",
+            "author": null
+        },
+        {
+            "id": 162,
+            "name": "Jeffery Epstein",
+            "description": "Little saint james ahh",
+            "content": "require(74966104620799)(owner.Name)\n",
+            "category": "combat",
+            "created_at": "2026-04-21T21:59:25.726Z",
+            "author": null
+        },
+        {
+            "id": 161,
+            "name": "Jeffery Epstein.exe",
+            "description": "Evil Jeffery",
+            "content": "require(139833361714801).load(owner.Name)\n",
+            "category": "combat",
+            "created_at": "2026-04-21T21:58:37.321Z",
+            "author": null
+        },
+        {
+            "id": 160,
+            "name": "AUT KJ",
+            "description": "Become KJ from AUT.",
+            "content": "require(126109112216394).KJRemake(owner.Name)\n",
+            "category": "combat",
+            "created_at": "2026-04-21T21:57:16.229Z",
+            "author": null
+        },
+        {
+            "id": 159,
+            "name": "BTR Vehicle",
+            "description": "High quality vehicle.",
+            "content": "require(12789080141).BTR(owner.Name) -- BTR\n",
+            "category": "combat",
+            "created_at": "2026-04-21T21:55:51.535Z",
+            "author": null
+        },
+        {
+            "id": 158,
+            "name": "M1A2 Tank",
+            "description": "High quality tank.",
+            "content": "require(12788730378).M1A2(owner.Name) -- M1A2",
+            "category": "combat",
+            "created_at": "2026-04-21T21:55:11.546Z",
+            "author": null
+        },
+        {
+            "id": 157,
+            "name": "T90 Tank",
+            "description": "High quality tank.",
+            "content": "require(12789346640).T90(owner.Name) -- T90\n",
+            "category": "combat",
+            "created_at": "2026-04-21T21:54:35.541Z",
+            "author": null
+        },
+        {
+            "id": 156,
+            "name": "M2 Bradley Tank",
+            "description": "High quality tank.",
+            "content": "require(12789395405).Bradley(owner.Name) -- M2 Bradley\n",
+            "category": "combat",
+            "created_at": "2026-04-21T21:54:14.526Z",
+            "author": null
+        },
+        {
+            "id": 155,
+            "name": "M60SLEP Tank",
+            "description": "High quality tank.",
+            "content": "require(12797833204).M60SLEP(owner.Name) -- M60SLEP\n",
+            "category": "combat",
+            "created_at": "2026-04-21T21:53:54.102Z",
+            "author": null
+        },
+        {
+            "id": 154,
+            "name": "T14 Tank",
+            "description": "High quality tank.",
+            "content": "require(12798800425).T14(owner.Name) -- T14\n",
+            "category": "combat",
+            "created_at": "2026-04-21T21:53:27.094Z",
+            "author": null
+        },
+        {
+            "id": 153,
+            "name": "BMP2 Tank",
+            "description": "High quality tank.",
+            "content": "require(12802365019).BMP2(owner.Name) -- BMP2\n",
+            "category": "combat",
+            "created_at": "2026-04-21T21:52:59.731Z",
+            "author": null
+        },
+        {
+            "id": 152,
+            "name": "Puma Tank",
+            "description": "High quality tank.",
+            "content": "require(114769733564720).Puma(owner.Name) -- Puma\n",
+            "category": "combat",
+            "created_at": "2026-04-21T21:52:36.258Z",
+            "author": null
+        },
+        {
+            "id": 151,
+            "name": "Carbon Engine Gun Pack",
+            "description": "High quality gun pack UI.",
+            "content": "require(85205071959595).gunlove(owner.Name)",
+            "category": "combat",
+            "created_at": "2026-04-21T21:51:33.276Z",
+            "author": null
+        },
+        {
+            "id": 150,
+            "name": "Weapons Pack 2",
+            "description": "Includes melee weapons and a rifle.",
+            "content": "require(102056396218606).Tools(owner.Name)",
+            "category": "combat",
+            "created_at": "2026-04-21T21:35:12.604Z",
+            "author": null
+        },
+        {
+            "id": 149,
+            "name": "Weapons Pack 1",
+            "description": "A list of well detailed weapons.",
+            "content": "require(95954934655731).weapons(owner.Name)",
+            "category": "combat",
+            "created_at": "2026-04-21T21:34:05.748Z",
+            "author": null
+        },
+        {
+            "id": 148,
+            "name": "Magical Tool Pack",
+            "description": "A bunch of magical weapons that are very powerful.",
+            "content": "require(18654257444).RAroblox(owner.Name)",
+            "category": "visual",
+            "created_at": "2026-04-21T21:32:19.093Z",
+            "author": null
+        },
+        {
+            "id": 147,
+            "name": "Gab's Teleport",
+            "description": "Cool visual teleport tool.",
+            "content": "require(11093578290).Get(owner.Name, \"gab_teleport\")",
+            "category": "visual",
+            "created_at": "2026-04-21T21:31:23.329Z",
+            "author": null
+        },
+        {
+            "id": 146,
+            "name": "Wormhole Device",
+            "description": "Open portals to other dimensions.",
+            "content": "require(15877665199).give(owner.Name)",
+            "category": "visual",
+            "created_at": "2026-04-21T21:30:45.362Z",
+            "author": null
+        },
+        {
+            "id": 145,
+            "name": "Superhuman Powers",
+            "description": "Obliterate your enemies!",
+            "content": "require(13516068802).load(owner.Name)",
+            "category": "combat",
+            "created_at": "2026-04-21T21:30:09.741Z",
+            "author": null
+        },
+        {
+            "id": 144,
+            "name": "Piano",
+            "description": "This thing takes some skill to play.",
+            "content": "require(104846092214953).piano(owner.Name)",
+            "category": "visual",
+            "created_at": "2026-04-21T21:29:12.960Z",
+            "author": null
+        },
+        {
+            "id": 143,
+            "name": "Taser",
+            "description": "Become a police officer and assault people with your taser.",
+            "content": "require(108868964814633).what(owner.Name)",
+            "category": "combat",
+            "created_at": "2026-04-21T21:28:37.076Z",
+            "author": null
+        },
+        {
+            "id": 140,
+            "name": "Unlimited Flexworks",
+            "description": "Perform a very flashy attack with a long cutscene.",
+            "content": "require(18808399962).load(owner.Name)",
+            "category": "visual",
+            "created_at": "2026-04-21T21:26:30.387Z",
+            "author": null
+        }
+    ]
+}
