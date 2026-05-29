@@ -16,10 +16,11 @@
 body {
   margin: 0;
   background: #050000;
-  color: #ff3b3b;
   font-family: Arial, sans-serif;
+  color: #ff3b3b;
 }
 
+/* HEADER */
 .header {
   height: 55px;
   display: flex;
@@ -37,6 +38,7 @@ body {
   text-shadow: 0 0 10px #ff0000;
 }
 
+/* LAYOUT */
 .container {
   display: flex;
   flex-direction: column;
@@ -55,6 +57,7 @@ body {
   font-size: 14px;
 }
 
+/* TOOLBAR */
 .toolbar {
   display: flex;
   gap: 10px;
@@ -79,14 +82,28 @@ button:hover {
   box-shadow: 0 0 12px #ff0000;
 }
 
-.output {
-  height: 180px;
-  background: #070000;
-  color: #00ff88;
-  font-family: monospace;
-  padding: 10px;
-  overflow-y: auto;
-  border-top: 1px solid #2a0000;
+/* NOTIFICATION */
+.notif {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #120000;
+  border: 1px solid #ff1e1e;
+  color: #ff4d4d;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px #ff0000;
+  font-weight: 700;
+  font-size: 13px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: 0.3s ease;
+  pointer-events: none;
+}
+
+.notif.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
 </head>
@@ -108,9 +125,10 @@ button:hover {
     <button onclick="copyCode()">COPY</button>
   </div>
 
-  <div class="output" id="output">[RedWing] Ready.</div>
-
 </div>
+
+<!-- NOTIFICATION -->
+<div id="notif" class="notif"></div>
 
 <script>
 let cm;
@@ -124,17 +142,24 @@ window.onload = () => {
   });
 };
 
-function log(msg) {
-  const out = document.getElementById("output");
-  out.textContent += "\n" + msg;
-  out.scrollTop = out.scrollHeight;
+/* NOTIFICATION SYSTEM */
+function showNotif(msg, type = "info") {
+  const n = document.getElementById("notif");
+  n.textContent = msg;
+
+  n.style.borderColor = type === "success" ? "#00ff88" : "#ff1e1e";
+  n.style.color = type === "success" ? "#00ff88" : "#ff4d4d";
+
+  n.classList.add("show");
+
+  setTimeout(() => {
+    n.classList.remove("show");
+  }, 3000);
 }
 
 async function execute() {
   const code = cm.getValue().trim();
-  if (!code) return log("[RedWing] No script provided");
-
-  log("[RedWing] Executing...");
+  if (!code) return showNotif("No script provided", "error");
 
   try {
     const res = await fetch("https://redwingapi.infodmca.org/api/execute", {
@@ -148,21 +173,26 @@ async function execute() {
     });
 
     const data = await res.json();
-    log("[RedWing Response] " + JSON.stringify(data, null, 2));
+
+    if (data.success) {
+      showNotif(data.message || "Executed successfully", "success");
+    } else {
+      showNotif(data.error || "Execution failed", "error");
+    }
 
   } catch (e) {
-    log("[RedWing Error] " + e.message);
+    showNotif("Network error: " + e.message, "error");
   }
 }
 
 function clearEditor() {
   cm.setValue("");
-  log("[RedWing] Cleared editor");
+  showNotif("Editor cleared", "info");
 }
 
 function copyCode() {
   navigator.clipboard.writeText(cm.getValue());
-  log("[RedWing] Copied script");
+  showNotif("Copied to clipboard", "success");
 }
 </script>
 
