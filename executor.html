@@ -20,7 +20,6 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* HEADER */
 .header {
   height: 55px;
   display: flex;
@@ -38,14 +37,12 @@ body {
   text-shadow: 0 0 10px #ff0000;
 }
 
-/* LAYOUT */
 .container {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 55px);
 }
 
-/* EDITOR */
 .editor-wrap {
   flex: 1;
   background: #0b0000;
@@ -58,7 +55,6 @@ body {
   font-size: 14px;
 }
 
-/* TOOLBAR */
 .toolbar {
   display: flex;
   gap: 10px;
@@ -83,7 +79,6 @@ button:hover {
   box-shadow: 0 0 12px #ff0000;
 }
 
-/* OUTPUT */
 .output {
   height: 180px;
   background: #070000;
@@ -147,12 +142,14 @@ async function execute() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ code })
+      body: JSON.stringify({
+        script: code
+      })
     });
 
     const data = await res.json();
+    log("[RedWing Response] " + JSON.stringify(data, null, 2));
 
-    log("[RedWing Response] " + JSON.stringify(data));
   } catch (e) {
     log("[RedWing Error] " + e.message);
   }
