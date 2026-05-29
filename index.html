@@ -1,1 +1,328 @@
-api
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RedWing Script Hub</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --bg:#050505;
+    --bg-card:#0f0f12;
+    --border:#2b1111;
+    --accent:#ff1f1f;
+    --text:#ffffff;
+    --text-muted:#9ca3af;
+    --radius-lg:24px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    background: radial-gradient(circle at top,#ff000025,transparent 35%),
+                radial-gradient(circle at bottom,#ff000015,transparent 30%),
+                var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+}
+
+.dashboard-layout{display:flex;min-height:100vh;}
+
+.sidebar{
+    width:280px;
+    background:rgba(10,10,10,.95);
+    border-right:1px solid var(--border);
+    padding:28px;
+    display:flex;
+    flex-direction:column;
+}
+
+.logo{display:flex;gap:14px;margin-bottom:40px;align-items:center;}
+
+.logo-icon{
+    width:48px;height:48px;border-radius:16px;
+    background:linear-gradient(135deg,#ff0000,#700000);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;
+    font-size:24px;
+}
+
+.sidebar-link{
+    display:block;
+    padding:14px;
+    margin-bottom:10px;
+    border-radius:14px;
+    color:#ddd;
+    text-decoration:none;
+    border:1px solid transparent;
+}
+
+.sidebar-link:hover,.sidebar-link.active{
+    background:rgba(255,0,0,.12);
+    border-color:rgba(255,0,0,.25);
+    color:#fff;
+}
+
+.main-content{flex:1;padding:40px;}
+
+.header h1{font-size:42px;margin-bottom:8px;}
+.header p{color:var(--text-muted);}
+
+.controls{
+    display:flex;
+    gap:15px;
+    margin:30px 0;
+    flex-wrap:wrap;
+}
+
+input{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    padding:14px 20px;
+    border-radius:14px;
+    color:white;
+    flex:1;
+    min-width:250px;
+}
+
+.filter-btn{
+    padding:10px 20px;
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:999px;
+    color:var(--text-muted);
+    cursor:pointer;
+}
+
+.filter-btn.active{
+    background:var(--accent);
+    color:white;
+}
+
+.script-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+    gap:24px;
+}
+
+.script-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:24px;
+    transition:.3s;
+}
+
+.script-card:hover{
+    transform:translateY(-8px);
+    border-color:var(--accent);
+}
+
+.script-header{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:16px;
+}
+
+.script-name{font-size:20px;font-weight:700;}
+
+.category{
+    padding:4px 12px;
+    background:rgba(255,31,31,0.15);
+    color:var(--accent);
+    border-radius:999px;
+    font-size:12px;
+}
+
+.script-desc{
+    color:var(--text-muted);
+    margin-bottom:20px;
+}
+
+.buttons{display:flex;gap:12px;}
+
+.btn{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:14px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.btn-execute{
+    background:linear-gradient(to right,#ff0000,#8b0000);
+    color:white;
+}
+
+.btn-copy{
+    background:#1f1f1f;
+    color:white;
+    border:1px solid var(--border);
+}
+
+.toast{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#ff1f1f;
+    color:white;
+    padding:12px 24px;
+    border-radius:12px;
+    display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">R</div>
+            <h2>RedWing</h2>
+        </div>
+        <a class="sidebar-link active">📜 Script Hub</a>
+        <a class="sidebar-link">⚡ Executor</a>
+        <a class="sidebar-link">🎮 Games</a>
+        <a class="sidebar-link">⚙️ Settings</a>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="header">
+            <h1>Script Hub</h1>
+            <p>Live scripts from API</p>
+        </div>
+
+        <div class="controls">
+            <input id="search" placeholder="Search scripts...">
+
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="visual">Visual</button>
+            <button class="filter-btn" data-filter="combat">Combat</button>
+            <button class="filter-btn" data-filter="admin">Admin</button>
+        </div>
+
+        <div class="script-grid" id="grid"></div>
+
+    </main>
+</div>
+
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+let scriptsData = [];
+
+/* LOAD API */
+async function loadScripts(){
+    const res = await fetch("YOUR_SCRIPT_API_ENDPOINT_HERE"); 
+    const json = await res.json();
+
+    if(!json.success) return;
+
+    scriptsData = json.scripts;
+    render(scriptsData);
+}
+
+/* RENDER */
+function render(data){
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    data.forEach(s => {
+        const card = document.createElement("div");
+        card.className = "script-card";
+        card.dataset.category = s.category;
+
+        card.innerHTML = `
+            <div class="script-header">
+                <div class="script-name">${s.name}</div>
+                <div class="category">${s.category}</div>
+            </div>
+
+            <div class="script-desc">${s.description}</div>
+
+            <div class="buttons">
+                <button class="btn btn-execute" onclick="executeScript(${s.id})">▶ Execute</button>
+                <button class="btn btn-copy" onclick="copyScript(${s.id})">📋 Copy</button>
+            </div>
+        `;
+
+        grid.appendChild(card);
+    });
+}
+
+/* EXECUTE */
+window.executeScript = async function(id){
+    const script = scriptsData.find(s => s.id === id);
+    if(!script) return;
+
+    try {
+        const res = await fetch("https://redwingapi.infodmca.org/api/execute", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                script: script.content
+            })
+        });
+
+        const data = await res.json();
+        console.log(data);
+
+        alert("Executed: " + script.name);
+
+    } catch(err){
+        alert("Execution failed");
+        console.error(err);
+    }
+};
+
+/* COPY */
+window.copyScript = function(id){
+    const script = scriptsData.find(s => s.id === id);
+    if(!script) return;
+
+    navigator.clipboard.writeText(script.content);
+
+    const toast = document.getElementById("toast");
+    toast.style.display = "block";
+    setTimeout(()=> toast.style.display="none", 1500);
+};
+
+/* SEARCH + FILTER */
+document.getElementById("search").addEventListener("input", applyFilters);
+
+document.querySelectorAll(".filter-btn").forEach(btn=>{
+    btn.onclick = ()=>{
+        document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        applyFilters();
+    };
+});
+
+function applyFilters(){
+    const search = document.getElementById("search").value.toLowerCase();
+    const filter = document.querySelector(".filter-btn.active").dataset.filter;
+
+    const filtered = scriptsData.filter(s=>{
+        const matchSearch = s.name.toLowerCase().includes(search) || s.description.toLowerCase().includes(search);
+        const matchFilter = filter === "all" || s.category === filter;
+        return matchSearch && matchFilter;
+    });
+
+    render(filtered);
+}
+
+/* INIT */
+loadScripts();
+</script>
+
+</body>
+</html>
