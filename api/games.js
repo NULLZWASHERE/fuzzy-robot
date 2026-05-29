@@ -11,15 +11,26 @@ async function sha256(msg) {
     .join("");
 }
 
+// Try both common concatenation methods
 async function solvePow(challenge, difficulty) {
   let nonce = 0;
   while (true) {
-    const hash = await sha256(challenge + nonce);
+    // Method 1: Direct concat (your original)
+    let hash = await sha256(challenge + nonce);
     if (hash.startsWith("0".repeat(difficulty))) {
-      return nonce;
+      console.log("Solved with direct concat");
+      return { nonce, method: "direct" };
     }
+
+    // Method 2: With colon
+    hash = await sha256(challenge + ":" + nonce);
+    if (hash.startsWith("0".repeat(difficulty))) {
+      console.log("Solved with colon concat");
+      return { nonce, method: "colon" };
+    }
+
     nonce++;
-    if (nonce % 150000 === 0) {
+    if (nonce % 100000 === 0) {
       await new Promise(resolve => setTimeout(resolve, 10));
     }
   }
@@ -35,7 +46,7 @@ export default async function handler(req, res) {
   try {
     const baseUrl = "https://builderx.fun";
 
-    // First request
+    // Get challenge
     let response = await fetch(`${baseUrl}/api/games`, {
       headers: {
         accept: "*/*",
@@ -49,25 +60,26 @@ export default async function handler(req, res) {
     if (!data) data = await response.text();
 
     if (data?.requiresPow === true) {
-      console.log("Solving PoW... Difficulty:", data.difficulty);
+      console.log("Solving PoW...");
 
-      const nonce = await solvePow(data.challenge, data.difficulty);
-      console.log("Nonce solved:", nonce);
+      const result = await solvePow(data.challenge, data.difficulty);
+      const nonce = result.nonce;
+      console.log("Nonce solved:", nonce, "Method:", result.method);
 
-      // === MOST PROMISING STRATEGIES ===
+      // Stronger strategy list
       const strategies = [
-        // 1. Query params with combined solution
-        `${baseUrl}/api/games?pow=${encodeURIComponent(data.challenge + ":" + nonce)}`,
+        // Query params
+        `${baseUrl}/api/games?nonce=${nonce}&challenge=${encodeURIComponent(data.challenge)}`,
+        `${baseUrl}/api/games?pow_nonce=${nonce}&pow_challenge=${encodeURIComponent(data.challenge)}`,
         `${baseUrl}/api/games?solution=${nonce}&challenge=${encodeURIComponent(data.challenge)}`,
-        
-        // 2. Header with combined value
-        { "x-pow-solution": `${data.challenge}:${nonce}` },
-        { "x-pow": `${data.challenge}:${nonce}` },
-        { "x-solution": `${data.challenge}:${nonce}` },
-        
-        // 3. Separate headers again
+        `${baseUrl}/api/games?pow=${data.challenge}:${nonce}`,
+
+        // Headers
+        { "x-pow-nonce": nonce.toString(), "x-pow-challenge": data.challenge },
         { "x-nonce": nonce.toString(), "x-challenge": data.challenge },
-        { "pow-nonce": nonce.toString() },
+        { "x-solution": nonce.toString() },
+        { "x-pow": `${data.challenge}:${nonce}` },
+        { "x-pow-solution": `${data.challenge}:${nonce}` },
       ];
 
       let success = false;
@@ -83,7 +95,7 @@ export default async function handler(req, res) {
         };
 
         if (typeof strat === "string") {
-          url = strat; // query param version
+          url = strat;
         } else {
           Object.assign(headers, strat);
         }
@@ -98,14 +110,14 @@ export default async function handler(req, res) {
 
         if (response.ok && finalData?.success !== false && !finalData?.requiresPow) {
           success = true;
-          console.log("✅ PoW Accepted with this method!");
+          console.log("✅ SUCCESS! PoW accepted.");
           break;
         }
       }
 
       if (!success) {
         return res.status(400).json({
-          error: "Still rejected - try next version",
+          error: "All attempts failed",
           nonce,
           lastResponse: finalData
         });
