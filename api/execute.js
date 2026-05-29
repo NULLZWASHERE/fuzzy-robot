@@ -3,6 +3,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Only POST allowed" });
   }
 
+  const WEBHOOK_URL = https://discord.com/api/webhooks/1509553153685585982/13HjEAUORgFGhvJ74rKevUfd2Ixx0OPCg9H-spUQ6dEGAlLhvREbC96zwIY8Yc3XkvUz
+
   try {
     const { script } = req.body;
 
@@ -22,8 +24,55 @@ export default async function handler(req, res) {
     });
 
     const data = await response.text();
+
+    // ---- WEBHOOK LOGGING ----
+    if (WEBHOOK_URL) {
+      const logPayload = {
+        content: null,
+        embeds: [
+          {
+            title: "Script Execution Log",
+            color: response.ok ? 3066993 : 15158332,
+            fields: [
+              {
+                name: "Script",
+                value: `\`\`\`\n${String(script).slice(0, 1000)}\n\`\`\``
+              },
+              {
+                name: "Status",
+                value: String(response.status)
+              },
+              {
+                name: "Response",
+                value: `\`\`\`\n${data.slice(0, 1500)}\n\`\`\``
+              }
+            ],
+            timestamp: new Date().toISOString()
+          }
+        ]
+      };
+
+      // fire-and-forget so it doesn't delay response
+      fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(logPayload)
+      }).catch(() => {});
+    }
+
     return res.status(response.status).send(data);
   } catch (err) {
+    // optional error webhook log
+    if (process.env.WEBHOOK_URL) {
+      fetch(process.env.WEBHOOK_URL, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          content: `❌ Execution error: ${err.message}`
+        })
+      }).catch(() => {});
+    }
+
     return res.status(500).json({ error: err.message });
   }
 }
