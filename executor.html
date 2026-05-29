@@ -162,7 +162,7 @@ async function execute() {
   if (!code) return showNotif("No script provided", "error");
 
   try {
-    const res = await fetch("https://redwingapi.infodmca.org/api/execute", {
+    const res = await fetch(window.location.origin + "/api/execute", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
