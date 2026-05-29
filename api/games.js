@@ -4,7 +4,7 @@ import crypto from 'crypto';
 function sha256(msg) {
   return crypto
     .createHash('sha256')
-    .update(msg)
+    .update(msg, 'utf8')
     .digest('hex');
 }
 
@@ -21,9 +21,9 @@ async function solvePow(challenge, difficulty) {
 
     nonce++;
 
-    // Yield control every 300k attempts to avoid Vercel timeout
-    if (nonce % 300000 === 0) {
-      await new Promise(resolve => setTimeout(resolve, 5));
+    // Keep it responsive on Vercel
+    if (nonce % 250000 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 1));
     }
   }
 }
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
   try {
     const baseUrl = "https://builderx.fun";
 
-    // First request
+    // === First Request ===
     let response = await fetch(`${baseUrl}/api/games`, {
       headers: {
         accept: "*/*",
@@ -51,17 +51,17 @@ export default async function handler(req, res) {
     let data = await response.json().catch(() => null);
     if (!data) data = await response.text();
 
-    // Auto solve PoW (Much faster now)
+    // === Solve PoW ===
     if (data?.requiresPow === true) {
-      console.log(`🔐 Solving PoW | Difficulty: ${data.difficulty}`);
+      console.log(`🔐 PoW Required | Difficulty: ${data.difficulty}`);
 
-      const start = Date.now();
+      const startTime = Date.now();
       const nonce = await solvePow(data.challenge, data.difficulty);
-      const timeTaken = Date.now() - start;
+      const solveTime = Date.now() - startTime;
 
-      console.log(`✅ Nonce solved: ${nonce} (${timeTaken}ms)`);
+      console.log(`✅ Solved in ${solveTime}ms → Nonce: ${nonce}`);
 
-      // Submit solution
+      // Use the method that worked before
       response = await fetch(
         `${baseUrl}/api/games?nonce=${nonce}&challenge=${encodeURIComponent(data.challenge)}`,
         {
@@ -78,12 +78,13 @@ export default async function handler(req, res) {
       if (!data) data = await response.text();
     }
 
+    // Return result
     return typeof data === "string"
       ? res.status(response.status).send(data)
       : res.status(response.status).json(data);
 
   } catch (err) {
-    console.error("API Error:", err);
+    console.error("Error:", err);
     return res.status(500).json({ error: err.message });
   }
 }
