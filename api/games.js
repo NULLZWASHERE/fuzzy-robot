@@ -14,7 +14,7 @@ async function sha256(msg) {
 async function solvePow(challenge, difficulty) {
   let nonce = 0;
   while (true) {
-    const hash = await sha256(challenge + nonce);           // Original
+    const hash = await sha256(challenge + nonce);
     if (hash.startsWith("0".repeat(difficulty))) {
       return nonce;
     }
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
   try {
     const baseUrl = "https://builderx.fun";
 
-    // 1. Get challenge
+    // First request
     let response = await fetch(`${baseUrl}/api/games`, {
       headers: {
         accept: "*/*",
@@ -49,41 +49,46 @@ export default async function handler(req, res) {
     if (!data) data = await response.text();
 
     if (data?.requiresPow === true) {
-      console.log("🔐 Solving PoW... Difficulty:", data.difficulty);
+      console.log("Solving PoW... Difficulty:", data.difficulty);
 
       const nonce = await solvePow(data.challenge, data.difficulty);
-      console.log("✅ Nonce found:", nonce);
+      console.log("Nonce solved:", nonce);
 
-      // Multiple submission formats
+      // === MOST PROMISING STRATEGIES ===
       const strategies = [
-        // A. Query params
-        { url: `${baseUrl}/api/games?nonce=${nonce}&challenge=${encodeURIComponent(data.challenge)}` },
-        { url: `${baseUrl}/api/games?pow_nonce=${nonce}&pow_challenge=${encodeURIComponent(data.challenge)}` },
+        // 1. Query params with combined solution
+        `${baseUrl}/api/games?pow=${encodeURIComponent(data.challenge + ":" + nonce)}`,
+        `${baseUrl}/api/games?solution=${nonce}&challenge=${encodeURIComponent(data.challenge)}`,
         
-        // B. Headers (different names)
-        { headers: { "x-pow-nonce": nonce.toString(), "x-pow-challenge": data.challenge } },
-        { headers: { "x-nonce": nonce.toString(), "x-challenge": data.challenge } },
-        { headers: { "x-solution": nonce.toString() } },
-        { headers: { "pow-nonce": nonce.toString() } },
+        // 2. Header with combined value
+        { "x-pow-solution": `${data.challenge}:${nonce}` },
+        { "x-pow": `${data.challenge}:${nonce}` },
+        { "x-solution": `${data.challenge}:${nonce}` },
         
-        // C. Combined in one header (common)
-        { headers: { "x-pow": `${data.challenge}:${nonce}` } },
+        // 3. Separate headers again
+        { "x-nonce": nonce.toString(), "x-challenge": data.challenge },
+        { "pow-nonce": nonce.toString() },
       ];
 
       let success = false;
       let finalData = null;
 
       for (let strat of strategies) {
-        const fetchUrl = strat.url || `${baseUrl}/api/games`;
-        const headers = {
+        let url = `${baseUrl}/api/games`;
+        let headers = {
           accept: "*/*",
           cookie: COOKIE,
           referer: "https://builderx.fun/dashboard/games",
           "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          ...(strat.headers || {})
         };
 
-        response = await fetch(fetchUrl, { headers });
+        if (typeof strat === "string") {
+          url = strat; // query param version
+        } else {
+          Object.assign(headers, strat);
+        }
+
+        response = await fetch(url, { headers });
 
         try {
           finalData = await response.json();
@@ -93,14 +98,14 @@ export default async function handler(req, res) {
 
         if (response.ok && finalData?.success !== false && !finalData?.requiresPow) {
           success = true;
-          console.log("✅ PoW Accepted!");
+          console.log("✅ PoW Accepted with this method!");
           break;
         }
       }
 
       if (!success) {
         return res.status(400).json({
-          error: "PoW rejected (Invalid proof)",
+          error: "Still rejected - try next version",
           nonce,
           lastResponse: finalData
         });
@@ -109,7 +114,7 @@ export default async function handler(req, res) {
       data = finalData;
     }
 
-    return typeof data === "string"
+    return typeof data === "string" 
       ? res.status(response.status).send(data)
       : res.status(response.status).json(data);
 
