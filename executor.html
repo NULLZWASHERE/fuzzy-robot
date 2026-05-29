@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RedWing Executor</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/lua/lua.min.js"></script>
+
+<style>
+body {
+  margin: 0;
+  background: #050000;
+  color: #ff3b3b;
+  font-family: Arial, sans-serif;
+}
+
+/* HEADER */
+.header {
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: #0a0000;
+  border-bottom: 1px solid #2a0000;
+}
+
+.logo {
+  font-weight: 800;
+  color: #ff1e1e;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px #ff0000;
+}
+
+/* LAYOUT */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 55px);
+}
+
+/* EDITOR */
+.editor-wrap {
+  flex: 1;
+  background: #0b0000;
+  border-bottom: 1px solid #2a0000;
+}
+
+.CodeMirror {
+  height: 100% !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+}
+
+/* TOOLBAR */
+.toolbar {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #0a0000;
+  border-top: 1px solid #2a0000;
+}
+
+button {
+  background: #ff1e1e;
+  border: none;
+  color: white;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #ff0000;
+  box-shadow: 0 0 12px #ff0000;
+}
+
+/* OUTPUT */
+.output {
+  height: 180px;
+  background: #070000;
+  color: #00ff88;
+  font-family: monospace;
+  padding: 10px;
+  overflow-y: auto;
+  border-top: 1px solid #2a0000;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <div class="logo">REDWING</div>
+  <div style="font-size:12px;color:#ff4d4d;">Executor Panel</div>
+</div>
+
+<div class="container">
+
+  <div class="editor-wrap" id="editor"></div>
+
+  <div class="toolbar">
+    <button onclick="execute()">▶ EXECUTE</button>
+    <button onclick="clearEditor()">CLEAR</button>
+    <button onclick="copyCode()">COPY</button>
+  </div>
+
+  <div class="output" id="output">[RedWing] Ready.</div>
+
+</div>
+
+<script>
+let cm;
+
+window.onload = () => {
+  cm = CodeMirror(document.getElementById("editor"), {
+    value: '-- RedWing Executor\nprint("Hello from RedWing")',
+    mode: "lua",
+    theme: "dracula",
+    lineNumbers: true
+  });
+};
+
+function log(msg) {
+  const out = document.getElementById("output");
+  out.textContent += "\n" + msg;
+  out.scrollTop = out.scrollHeight;
+}
+
+async function execute() {
+  const code = cm.getValue().trim();
+  if (!code) return log("[RedWing] No script provided");
+
+  log("[RedWing] Executing...");
+
+  try {
+    const res = await fetch("https://redwingapi.infodmca.org/api/execute", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ code })
+    });
+
+    const data = await res.json();
+
+    log("[RedWing Response] " + JSON.stringify(data));
+  } catch (e) {
+    log("[RedWing Error] " + e.message);
+  }
+}
+
+function clearEditor() {
+  cm.setValue("");
+  log("[RedWing] Cleared editor");
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(cm.getValue());
+  log("[RedWing] Copied script");
+}
+</script>
+
+</body>
+</html>
