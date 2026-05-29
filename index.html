@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RedWing — Home</title>
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #050000;
+  --panel: #0b0000;
+  --red: #ff1e1e;
+  --red2: #ff3b3b;
+  --border: #2a0000;
+  --text: #ffffff;
+  --muted: #ff6b6b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* HEADER */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: #0a0000;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--red);
+  letter-spacing: 3px;
+  text-shadow: 0 0 12px var(--red);
+}
+
+.tag {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.hero h1 {
+  font-size: 42px;
+  color: var(--red);
+  text-shadow: 0 0 20px var(--red);
+  margin: 0;
+}
+
+.hero p {
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  padding: 30px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 18px;
+  border-radius: 10px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--red);
+  box-shadow: 0 0 20px rgba(255, 30, 30, 0.3);
+}
+
+.card h3 {
+  margin: 0;
+  color: var(--red2);
+}
+
+.card p {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: #555;
+  border-top: 1px solid var(--border);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">REDWING</div>
+  <div class="tag">API Dashboard • Executor System</div>
+</header>
+
+<section class="hero">
+  <h1>Welcome to RedWing</h1>
+  <p>Fast. Clean. Script Execution Platform.</p>
+</section>
+
+<section class="grid">
+
+  <div class="card" onclick="go('https://redwingapi.infodmca.org/username.html')">
+    <h3>Username</h3>
+    <p>Set or update your RedWing identity</p>
+  </div>
+
+  <div class="card" onclick="go('https://redwingapi.infodmca.org/games.html')">
+    <h3>Games</h3>
+    <p>Browse supported games & environments</p>
+  </div>
+
+  <div class="card" onclick="go('https://redwingapi.infodmca.org/scripts.html')">
+    <h3>Scripts</h3>
+    <p>Community scripts & saved payloads</p>
+  </div>
+
+  <div class="card" onclick="go('https://redwingapi.infodmca.org/executor.html')">
+    <h3>Executor</h3>
+    <p>Run Lua scripts via RedWing API</p>
+  </div>
+
+</section>
+
+<footer>
+  © 2026 RedWing API • All systems operational
+</footer>
+
+<script>
+function go(url) {
+  window.location.href = url;
+}
+</script>
+
+</body>
+</html>
