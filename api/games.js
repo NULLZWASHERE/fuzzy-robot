@@ -14,13 +14,13 @@ async function sha256(msg) {
 async function solvePow(challenge, difficulty) {
   let nonce = 0;
   while (true) {
-    const hash = await sha256(challenge + nonce);
+    const hash = await sha256(challenge + nonce);           // Original
     if (hash.startsWith("0".repeat(difficulty))) {
       return nonce;
     }
     nonce++;
-    if (nonce % 200000 === 0) {
-      await new Promise(resolve => setTimeout(resolve, 10)); // prevent Vercel timeout
+    if (nonce % 150000 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 10));
     }
   }
 }
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
   try {
     const baseUrl = "https://builderx.fun";
 
-    // First request - get challenge
+    // 1. Get challenge
     let response = await fetch(`${baseUrl}/api/games`, {
       headers: {
         accept: "*/*",
@@ -45,52 +45,43 @@ export default async function handler(req, res) {
       }
     });
 
-    let data;
-    try {
-      data = await response.json();
-    } catch {
-      data = await response.text();
-    }
+    let data = await response.json().catch(() => null);
+    if (!data) data = await response.text();
 
-    // Solve PoW if required
     if (data?.requiresPow === true) {
-      console.log("🔐 PoW Required. Difficulty:", data.difficulty, "Challenge:", data.challenge);
+      console.log("🔐 Solving PoW... Difficulty:", data.difficulty);
 
       const nonce = await solvePow(data.challenge, data.difficulty);
-      console.log("✅ Nonce Solved:", nonce);
+      console.log("✅ Nonce found:", nonce);
 
-      // Try different ways to send the solution
-      const attempts = [
-        // 1. Query parameters (very common for these PoW)
-        `${baseUrl}/api/games?nonce=${nonce}&challenge=${encodeURIComponent(data.challenge)}`,
-
-        // 2. Query with pow_ prefix
-        `${baseUrl}/api/games?pow_nonce=${nonce}&pow_challenge=${encodeURIComponent(data.challenge)}`,
-
-        // 3. Headers
-        null, // special case for headers below
+      // Multiple submission formats
+      const strategies = [
+        // A. Query params
+        { url: `${baseUrl}/api/games?nonce=${nonce}&challenge=${encodeURIComponent(data.challenge)}` },
+        { url: `${baseUrl}/api/games?pow_nonce=${nonce}&pow_challenge=${encodeURIComponent(data.challenge)}` },
+        
+        // B. Headers (different names)
+        { headers: { "x-pow-nonce": nonce.toString(), "x-pow-challenge": data.challenge } },
+        { headers: { "x-nonce": nonce.toString(), "x-challenge": data.challenge } },
+        { headers: { "x-solution": nonce.toString() } },
+        { headers: { "pow-nonce": nonce.toString() } },
+        
+        // C. Combined in one header (common)
+        { headers: { "x-pow": `${data.challenge}:${nonce}` } },
       ];
 
-      let finalData = null;
       let success = false;
+      let finalData = null;
 
-      for (let attempt of attempts) {
-        let fetchUrl = `${baseUrl}/api/games`;
-        let headers = {
+      for (let strat of strategies) {
+        const fetchUrl = strat.url || `${baseUrl}/api/games`;
+        const headers = {
           accept: "*/*",
           cookie: COOKIE,
           referer: "https://builderx.fun/dashboard/games",
           "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          ...(strat.headers || {})
         };
-
-        if (typeof attempt === "string") {
-          fetchUrl = attempt; // query param version
-        } else {
-          // Header version
-          headers["x-pow-nonce"] = nonce.toString();
-          headers["x-pow-challenge"] = data.challenge;
-          headers["x-pow-timestamp"] = data.timestamp?.toString() || "";
-        }
 
         response = await fetch(fetchUrl, { headers });
 
@@ -102,14 +93,14 @@ export default async function handler(req, res) {
 
         if (response.ok && finalData?.success !== false && !finalData?.requiresPow) {
           success = true;
-          console.log("✅ Request succeeded with solution");
+          console.log("✅ PoW Accepted!");
           break;
         }
       }
 
       if (!success) {
         return res.status(400).json({
-          error: "Failed to bypass PoW - all methods tried",
+          error: "PoW rejected (Invalid proof)",
           nonce,
           lastResponse: finalData
         });
@@ -118,13 +109,12 @@ export default async function handler(req, res) {
       data = finalData;
     }
 
-    // Return the final data
-    return typeof data === "string" 
+    return typeof data === "string"
       ? res.status(response.status).send(data)
       : res.status(response.status).json(data);
 
   } catch (err) {
-    console.error("Error:", err);
+    console.error(err);
     return res.status(500).json({ error: err.message });
   }
 }
