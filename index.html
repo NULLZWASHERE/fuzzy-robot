@@ -1,80 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Redwing Scripts Hub</title>
 
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #0b0b10;
-        color: #fff;
-    }
+body {
+    margin: 0;
+    font-family: Inter, Arial, sans-serif;
+    background: radial-gradient(circle at top, #120000, #050000);
+    color: white;
+}
 
-    header {
-        padding: 15px;
-        background: #111;
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
+/* top bar */
+header {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    background: rgba(20,0,0,0.75);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #330000;
+}
 
-    input, select {
-        padding: 10px;
-        border: none;
-        border-radius: 8px;
-        background: #1a1a22;
-        color: white;
-        outline: none;
-    }
+/* inputs */
+input, select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #330000;
+    background: #140000;
+    color: white;
+    outline: none;
+}
 
-    .container {
-        padding: 20px;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 15px;
-    }
+input:focus, select:focus {
+    border-color: #ff2b2b;
+    box-shadow: 0 0 10px rgba(255,0,0,0.3);
+}
 
-    .card {
-        background: #151522;
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid #222;
-    }
+/* grid */
+.container {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
 
-    .title {
-        font-size: 16px;
-        font-weight: bold;
-    }
+/* card */
+.card {
+    background: linear-gradient(145deg, #1a0000, #0b0000);
+    border: 1px solid #2a0000;
+    border-radius: 14px;
+    padding: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    transition: 0.2s;
+}
 
-    .desc {
-        font-size: 13px;
-        opacity: 0.8;
-        margin-top: 5px;
-    }
+.card:hover {
+    transform: translateY(-3px);
+    border-color: #ff2b2b;
+    box-shadow: 0 0 18px rgba(255,0,0,0.25);
+}
 
-    .category {
-        margin-top: 8px;
-        font-size: 12px;
-        color: #7aa2ff;
-    }
+/* text */
+.title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #ff3b3b;
+}
 
-    .content {
-        margin-top: 10px;
-        font-size: 11px;
-        background: #0d0d14;
-        padding: 8px;
-        border-radius: 8px;
-        white-space: pre-wrap;
-        overflow-x: auto;
-    }
+.desc {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-top: 6px;
+}
 
-    .error {
-        padding: 20px;
-        color: red;
-    }
+.category {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #ff6b6b;
+}
+
+/* script box */
+.content {
+    margin-top: 10px;
+    font-size: 11px;
+    background: #0a0000;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #2a0000;
+    white-space: pre-wrap;
+}
+
+/* execute button */
+button {
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #ff0000, #b30000);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    box-shadow: 0 0 15px rgba(255,0,0,0.5);
+    transform: scale(1.02);
+}
+
+.error {
+    padding: 20px;
+    color: red;
+}
 </style>
 </head>
 
@@ -95,28 +135,23 @@
 <script>
 let scriptsData = [];
 
-// 🔥 FETCH FROM YOUR API
 async function loadScripts() {
     try {
         const res = await fetch("https://redwingapi.infodmca.org/scripts.txt");
-
-        if (!res.ok) {
-            throw new Error("HTTP Error: " + res.status);
-        }
-
         const data = await res.json();
-
-        if (!data.success || !Array.isArray(data.scripts)) {
-            throw new Error("Invalid API response format");
-        }
-
         scriptsData = data.scripts;
         render();
-
     } catch (err) {
         document.getElementById("container").innerHTML =
-            `<div class="error">Failed to load scripts: ${err.message}</div>`;
+            `<div class="error">Failed to load API: ${err.message}</div>`;
     }
+}
+
+function executeScript(script) {
+    // UI hook only (no unsafe execution)
+    console.log("Execute:", script);
+
+    alert("Executing:\n" + script.name);
 }
 
 function render() {
@@ -134,11 +169,6 @@ function render() {
         );
     });
 
-    if (filtered.length === 0) {
-        container.innerHTML = "<div class='error'>No scripts found</div>";
-        return;
-    }
-
     filtered.forEach(script => {
         const card = document.createElement("div");
         card.className = "card";
@@ -146,8 +176,11 @@ function render() {
         card.innerHTML = `
             <div class="title">${script.name}</div>
             <div class="desc">${script.description}</div>
-            <div class="category">Category: ${script.category}</div>
+            <div class="category">${script.category}</div>
             <div class="content">${script.content}</div>
+            <button onclick='executeScript(${JSON.stringify(script)})'>
+                EXECUTE
+            </button>
         `;
 
         container.appendChild(card);
