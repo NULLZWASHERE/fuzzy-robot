@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RedWing Username Setter</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --bg:#050505;
+    --bg-card:#0f0f12;
+    --border:#2b1111;
+    --accent:#ff1f1f;
+    --text:#ffffff;
+    --text-muted:#9ca3af;
+    --radius-lg:24px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    background: radial-gradient(circle at top,#ff000025,transparent 35%),
+                radial-gradient(circle at bottom,#ff000015,transparent 30%),
+                var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+}
+
+.dashboard-layout{display:flex;min-height:100vh;}
+
+.sidebar{
+    width:280px;
+    background:rgba(10,10,10,.95);
+    border-right:1px solid var(--border);
+    padding:28px;
+    display:flex;
+    flex-direction:column;
+}
+
+.logo{display:flex;gap:14px;margin-bottom:40px;align-items:center;}
+.logo-icon{
+    width:48px;height:48px;border-radius:16px;
+    background:linear-gradient(135deg,#ff0000,#700000);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;
+}
+
+.sidebar-link{
+    display:block;
+    padding:14px;
+    margin-bottom:10px;
+    border-radius:14px;
+    color:#ddd;
+    text-decoration:none;
+}
+
+.sidebar-link:hover,.sidebar-link.active{
+    background:rgba(255,0,0,.12);
+    border:1px solid rgba(255,0,0,.25);
+    color:#fff;
+}
+
+.main-content{flex:1;padding:40px;}
+
+.header h1{font-size:42px;margin-bottom:8px;}
+.header p{color:var(--text-muted);margin-bottom:20px;}
+
+.card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:24px;
+    max-width:600px;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:#0a0a0a;
+    color:#fff;
+    outline:none;
+    margin-top:10px;
+}
+
+button{
+    width:100%;
+    margin-top:15px;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(to right,#ff0000,#8b0000);
+    color:white;
+    font-weight:800;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{transform:scale(1.02);}
+
+.status{
+    margin-top:15px;
+    font-size:14px;
+    color:var(--text-muted);
+}
+</style>
+</head>
+
+<body>
+
+<div class="dashboard-layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+<div class="logo">
+<div class="logo-icon">R</div>
+<h2>RedWing</h2>
+</div>
+
+<a class="sidebar-link">📡 Live Servers</a>
+<a class="sidebar-link">⚡ Executor</a>
+<a class="sidebar-link active">👤 Username</a>
+<a class="sidebar-link">⚙️ Settings</a>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+
+<div class="header">
+<h1>Set Username</h1>
+<p>Send a request to RedWing API</p>
+</div>
+
+<div class="card">
+
+<label>Roblox Username</label>
+<input id="username" placeholder="Enter username..." />
+
+<button onclick="setUsername()">Update Username</button>
+
+<div class="status" id="status">Idle</div>
+
+</div>
+
+</main>
+</div>
+
+<script>
+async function setUsername(){
+    const username = document.getElementById("username").value;
+    const status = document.getElementById("status");
+
+    if(!username){
+        status.innerText = "❌ Please enter a username";
+        return;
+    }
+
+    status.innerText = "⏳ Sending request...";
+
+    try{
+        const res = await fetch("https://redwingapi.infodmca.org/api/set-username", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                robloxUsername: username
+            })
+        });
+
+        const text = await res.text();
+
+        if(res.ok){
+            status.innerText = "✅ Username updated successfully";
+        }else{
+            status.innerText = "❌ Error: " + text;
+        }
+
+    }catch(err){
+        console.error(err);
+        status.innerText = "❌ Network error";
+    }
+}
+</script>
+
+</body>
+</html>
