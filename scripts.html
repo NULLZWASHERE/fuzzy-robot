@@ -122,7 +122,7 @@ let scriptsData = [];
 
 async function loadScripts() {
     try {
-        const res = await fetch("https://redwingapi.infodmca.org/scripts.txt");
+        const res = await fetch(window.location.origin + "/scripts.txt")
         const data = await res.json();
 
         scriptsData = data.scripts;
