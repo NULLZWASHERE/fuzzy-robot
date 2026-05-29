@@ -1,4 +1,4 @@
-// api/games.js  (or app/api/games/route.js)
+// api/games.js
 import crypto from 'crypto';
 
 async function sha256(msg) {
@@ -19,9 +19,8 @@ async function solvePow(challenge, difficulty) {
       return nonce;
     }
     nonce++;
-    // Prevent Vercel timeout / blocking
-    if (nonce % 150000 === 0) {
-      await new Promise(resolve => setTimeout(resolve, 10));
+    if (nonce % 200000 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 10)); // prevent Vercel timeout
     }
   }
 }
@@ -36,7 +35,7 @@ export default async function handler(req, res) {
   try {
     const baseUrl = "https://builderx.fun";
 
-    // === Step 1: Get Challenge ===
+    // First request - get challenge
     let response = await fetch(`${baseUrl}/api/games`, {
       headers: {
         accept: "*/*",
@@ -46,76 +45,83 @@ export default async function handler(req, res) {
       }
     });
 
-    let data = await response.json().catch(() => null);
-    if (!data) data = await response.text();
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      data = await response.text();
+    }
 
-    // === Step 2: Solve PoW if required ===
+    // Solve PoW if required
     if (data?.requiresPow === true) {
-      console.log("PoW Required → Solving... Difficulty:", data.difficulty);
+      console.log("🔐 PoW Required. Difficulty:", data.difficulty, "Challenge:", data.challenge);
 
       const nonce = await solvePow(data.challenge, data.difficulty);
-      console.log("✅ Solved Nonce:", nonce);
+      console.log("✅ Nonce Solved:", nonce);
 
-      // === Step 3: Retry with solution (multiple common methods) ===
-      const strategies = [
-        // 1. Headers
-        () => ({
-          headers: {
-            ...{ accept: "*/*", cookie: COOKIE, referer: "https://builderx.fun/dashboard/games", "user-agent": "Mozilla/5.0..." },
-            "x-pow-nonce": nonce.toString(),
-            "x-pow-challenge": data.challenge,
-            "x-pow-timestamp": data.timestamp?.toString(),
-          }
-        }),
-        // 2. Query Parameters (very common)
-        () => ({
-          url: `${baseUrl}/api/games?nonce=${nonce}&challenge=${encodeURIComponent(data.challenge)}`,
-          headers: { accept: "*/*", cookie: COOKIE, referer: "https://builderx.fun/dashboard/games", "user-agent": "Mozilla/5.0..." }
-        }),
-        // 3. Solution header
-        () => ({
-          headers: {
-            ...{ accept: "*/*", cookie: COOKIE, referer: "https://builderx.fun/dashboard/games", "user-agent": "Mozilla/5.0..." },
-            "x-solution": nonce.toString(),
-            "x-challenge": data.challenge,
-          }
-        }),
+      // Try different ways to send the solution
+      const attempts = [
+        // 1. Query parameters (very common for these PoW)
+        `${baseUrl}/api/games?nonce=${nonce}&challenge=${encodeURIComponent(data.challenge)}`,
+
+        // 2. Query with pow_ prefix
+        `${baseUrl}/api/games?pow_nonce=${nonce}&pow_challenge=${encodeURIComponent(data.challenge)}`,
+
+        // 3. Headers
+        null, // special case for headers below
       ];
 
-      let finalResponse = null;
       let finalData = null;
+      let success = false;
 
-      for (const strat of strategies) {
-        const config = strat();
-        const fetchUrl = config.url || `${baseUrl}/api/games`;
+      for (let attempt of attempts) {
+        let fetchUrl = `${baseUrl}/api/games`;
+        let headers = {
+          accept: "*/*",
+          cookie: COOKIE,
+          referer: "https://builderx.fun/dashboard/games",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        };
 
-        finalResponse = await fetch(fetchUrl, {
-          method: "GET",
-          headers: config.headers || {}
-        });
-
-        try {
-          finalData = await finalResponse.json();
-        } catch {
-          finalData = await finalResponse.text();
+        if (typeof attempt === "string") {
+          fetchUrl = attempt; // query param version
+        } else {
+          // Header version
+          headers["x-pow-nonce"] = nonce.toString();
+          headers["x-pow-challenge"] = data.challenge;
+          headers["x-pow-timestamp"] = data.timestamp?.toString() || "";
         }
 
-        if (finalResponse.ok && finalData?.success !== false && !finalData?.requiresPow) {
-          console.log("✅ Success with strategy");
+        response = await fetch(fetchUrl, { headers });
+
+        try {
+          finalData = await response.json();
+        } catch {
+          finalData = await response.text();
+        }
+
+        if (response.ok && finalData?.success !== false && !finalData?.requiresPow) {
+          success = true;
+          console.log("✅ Request succeeded with solution");
           break;
         }
       }
 
+      if (!success) {
+        return res.status(400).json({
+          error: "Failed to bypass PoW - all methods tried",
+          nonce,
+          lastResponse: finalData
+        });
+      }
+
       data = finalData;
-      response = finalResponse;
     }
 
-    // === Return final result ===
-    if (typeof data === "string") {
-      return res.status(response.status).send(data);
-    } else {
-      return res.status(response.status).json(data);
-    }
+    // Return the final data
+    return typeof data === "string" 
+      ? res.status(response.status).send(data)
+      : res.status(response.status).json(data);
 
   } catch (err) {
     console.error("Error:", err);
