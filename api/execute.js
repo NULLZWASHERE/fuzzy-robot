@@ -3,10 +3,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Only POST allowed" });
   }
 
-  const WEBHOOK_URL = https://discord.com/api/webhooks/1509553153685585982/13HjEAUORgFGhvJ74rKevUfd2Ixx0OPCg9H-spUQ6dEGAlLhvREbC96zwIY8Yc3XkvUz
-
   try {
-    const { script } = req.body;
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    const script = body?.script;
+
+    if (!script) {
+      return res.status(400).json({ error: "Missing script" });
+    }
+
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1509553153685585982/13HjEAUORgFGhvJ74rKevUfd2Ixx0OPCg9H-spUQ6dEGAlLhvREbC96zwIY8Yc3XkvUz"; // <-- put your webhook here
 
     const COOKIE =
       "server_name_session=a2e03859d0873635e6f981e9c06c37ef; token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1MTM3LCJlbWFpbCI6InJlZHdpbmdzc2ZvbGxvd2VyQGdtYWlsLmNvbSIsInJhbmsiOiJzdGFuZGFyZCIsImlhdCI6MTc3OTk3MDA2NSwiZXhwIjoxNzgwNTc0ODY1fQ.kfkBJdwxGUcA1Omt9dJKR1UocWeyzE9XBo1zE3k__bg";
@@ -25,54 +30,44 @@ export default async function handler(req, res) {
 
     const data = await response.text();
 
-    // ---- WEBHOOK LOGGING ----
-    if (WEBHOOK_URL) {
-      const logPayload = {
-        content: null,
-        embeds: [
-          {
-            title: "Script Execution Log",
-            color: response.ok ? 3066993 : 15158332,
-            fields: [
-              {
-                name: "Script",
-                value: `\`\`\`\n${String(script).slice(0, 1000)}\n\`\`\``
-              },
-              {
-                name: "Status",
-                value: String(response.status)
-              },
-              {
-                name: "Response",
-                value: `\`\`\`\n${data.slice(0, 1500)}\n\`\`\``
-              }
-            ],
-            timestamp: new Date().toISOString()
-          }
-        ]
-      };
-
-      // fire-and-forget so it doesn't delay response
-      fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(logPayload)
-      }).catch(() => {});
-    }
-
-    return res.status(response.status).send(data);
-  } catch (err) {
-    // optional error webhook log
-    if (process.env.WEBHOOK_URL) {
-      fetch(process.env.WEBHOOK_URL, {
+    // ---------------- WEBHOOK LOGGING ----------------
+    try {
+      await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          content: `❌ Execution error: ${err.message}`
+          content: null,
+          embeds: [
+            {
+              title: "Script Execution Log",
+              color: response.ok ? 3066993 : 15158332,
+              fields: [
+                {
+                  name: "Script",
+                  value: "```" + String(script).slice(0, 1000) + "```"
+                },
+                {
+                  name: "Status",
+                  value: String(response.status)
+                },
+                {
+                  name: "Response",
+                  value: "```" + data.slice(0, 1500) + "```"
+                }
+              ],
+              timestamp: new Date().toISOString()
+            }
+          ]
         })
-      }).catch(() => {});
+      });
+    } catch (e) {
+      console.log("Webhook failed:", e.message);
     }
 
+    return res.status(response.status).send(data);
+
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: err.message });
   }
 }
