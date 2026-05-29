@@ -1,44 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Redwing Scripts Hub</title>
+<title>RedWing Hub</title>
 
 <style>
 body {
     margin: 0;
-    font-family: Inter, Arial, sans-serif;
-    background: radial-gradient(circle at top, #120000, #050000);
-    color: white;
+    font-family: Arial, sans-serif;
+    background: #070000;
+    color: #ff2b2b;
 }
 
 /* top bar */
 header {
+    padding: 15px;
+    background: #120000;
+    border-bottom: 1px solid #2a0000;
     display: flex;
     gap: 10px;
-    padding: 15px;
-    background: rgba(20,0,0,0.75);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid #330000;
 }
 
-/* inputs */
 input, select {
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #330000;
-    background: #140000;
+    background: #1a0000;
     color: white;
     outline: none;
 }
 
-input:focus, select:focus {
-    border-color: #ff2b2b;
-    box-shadow: 0 0 10px rgba(255,0,0,0.3);
-}
-
-/* grid */
+/* layout */
 .container {
     padding: 20px;
     display: grid;
@@ -48,31 +41,26 @@ input:focus, select:focus {
 
 /* card */
 .card {
-    background: linear-gradient(145deg, #1a0000, #0b0000);
+    background: #120000;
     border: 1px solid #2a0000;
-    border-radius: 14px;
-    padding: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-    transition: 0.2s;
+    border-radius: 10px;
+    padding: 12px;
 }
 
 .card:hover {
-    transform: translateY(-3px);
     border-color: #ff2b2b;
-    box-shadow: 0 0 18px rgba(255,0,0,0.25);
+    box-shadow: 0 0 15px rgba(255,0,0,0.2);
 }
 
-/* text */
 .title {
     font-size: 16px;
-    font-weight: 800;
-    color: #ff3b3b;
+    font-weight: bold;
 }
 
 .desc {
     font-size: 13px;
     opacity: 0.8;
-    margin-top: 6px;
+    margin-top: 5px;
 }
 
 .category {
@@ -81,39 +69,36 @@ input:focus, select:focus {
     color: #ff6b6b;
 }
 
-/* script box */
 .content {
     margin-top: 10px;
     font-size: 11px;
-    background: #0a0000;
+    background: black;
     padding: 8px;
-    border-radius: 8px;
-    border: 1px solid #2a0000;
+    border-radius: 6px;
     white-space: pre-wrap;
+    border: 1px solid #2a0000;
 }
 
-/* execute button */
+/* button */
 button {
     margin-top: 10px;
     width: 100%;
     padding: 10px;
     border: none;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #ff0000, #b30000);
+    border-radius: 8px;
+    background: linear-gradient(90deg, #ff0000, #990000);
     color: white;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.2s;
 }
 
 button:hover {
-    box-shadow: 0 0 15px rgba(255,0,0,0.5);
-    transform: scale(1.02);
+    opacity: 0.9;
 }
 
-.error {
-    padding: 20px;
-    color: red;
+.status {
+    padding: 10px;
+    color: #ff8080;
 }
 </style>
 </head>
@@ -139,19 +124,40 @@ async function loadScripts() {
     try {
         const res = await fetch("https://redwingapi.infodmca.org/scripts.txt");
         const data = await res.json();
+
         scriptsData = data.scripts;
         render();
+
     } catch (err) {
         document.getElementById("container").innerHTML =
-            `<div class="error">Failed to load API: ${err.message}</div>`;
+            `<div class="status">Failed to load scripts: ${err.message}</div>`;
     }
 }
 
-function executeScript(script) {
-    // UI hook only (no unsafe execution)
-    console.log("Execute:", script);
+/* EXECUTE FUNCTION */
+async function executeScript(script) {
+    try {
+        const res = await fetch("https://redwingapi.infodmca.org/api/execute", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                script: script.content,
+                name: script.name
+            })
+        });
 
-    alert("Executing:\n" + script.name);
+        const data = await res.json();
+
+        alert("Executed: " + script.name);
+
+        console.log("Execute response:", data);
+
+    } catch (err) {
+        alert("Execute failed: " + err.message);
+        console.error(err);
+    }
 }
 
 function render() {
