@@ -156,6 +156,15 @@ input,select{
 
 .stat-val{font-size:16px;font-weight:800;}
 
+.server-list{
+    margin-top:12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-height:220px;
+    overflow:auto;
+}
+
 .join-btn{
     width:100%;
     padding:12px;
@@ -224,11 +233,8 @@ async function fetchGames(){
     try{
         const res = await fetch("https://redwingapi.infodmca.org/api/games");
         const data = await res.json();
-
         gamesData = data.games || [];
-
         renderGames();
-
     }catch(err){
         console.error(err);
         document.getElementById("gamesContainer").innerHTML =
@@ -243,7 +249,6 @@ function renderGames(){
 
     let games = [...gamesData];
 
-    // SEARCH
     if(search){
         games = games.filter(g =>
             (g.name || "").toLowerCase().includes(search) ||
@@ -251,24 +256,33 @@ function renderGames(){
         );
     }
 
-    // SORT
     if(sort === "players"){
         games.sort((a,b)=> (b.totalPlayers||0) - (a.totalPlayers||0));
     }else if(sort === "visits"){
         games.sort((a,b)=> (b.visits||0) - (a.visits||0));
     }
 
-    // STATS
     document.getElementById("gameCount").innerText = games.length;
     document.getElementById("playerCount").innerText =
         games.reduce((a,b)=>a + (b.totalPlayers||0),0);
 
-    // RENDER
     container.innerHTML = "";
 
     games.forEach(game=>{
         const card = document.createElement("div");
         card.className = "game-card";
+
+        const servers = game.jobIds
+            ? Object.keys(game.jobIds).slice(0, 10).map(jobId=>{
+                const url = `https://www.roblox.com/games/start?placeId=${game.placeId}&gameInstanceId=${jobId}`;
+                return `
+                    <button class="join-btn"
+                        onclick="window.open('${url}','_blank')">
+                        JOIN SERVER (${jobId.slice(0,6)}...)
+                    </button>
+                `;
+            }).join("")
+            : "<p style='color:gray'>No active servers</p>";
 
         card.innerHTML = `
             <div class="game-thumb" style="background-image:url('${game.thumbnail}')">
@@ -286,10 +300,9 @@ function renderGames(){
                     <div class="stat-item"><div class="stat-val">${Number(game.visits||0).toLocaleString()}</div><div>VISITS</div></div>
                 </div>
 
-                <button class="join-btn"
-                    onclick="window.open('https://www.roblox.com/games/${game.placeId}','_blank')">
-                    JOIN SERVER
-                </button>
+                <div class="server-list">
+                    ${servers}
+                </div>
             </div>
         `;
 
@@ -297,14 +310,10 @@ function renderGames(){
     });
 }
 
-// EVENTS
 document.getElementById("search").addEventListener("input", renderGames);
 document.getElementById("sort").addEventListener("change", renderGames);
 
-// AUTO REFRESH EVERY 30 SECONDS
 setInterval(fetchGames, 30000);
-
-// INIT
 fetchGames();
 </script>
 
